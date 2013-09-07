@@ -18,9 +18,8 @@ finally define the task indicating where the css with the **@import** rules is l
 
 ```javascript
 grunt.initConfig({
-    cssUrls: {
-        /* src *(required)*: The file location of the css with the @import rules. */
-        src:  "public/site.css"
+    cssurls: {
+        files: {"build/site.css": "public/site.css"}
     }
 });
 ```
@@ -33,6 +32,7 @@ Lets imagine the following folder structure and css contents:
 
 ```bash
 public
+├── build
 ├── css
 │   └─── common.css
 │   └─── views
@@ -100,41 +100,35 @@ and reference it in the html:
 By doing this we'll have a reference starting point to calcule the relative urls for the **url** references
 inside the **css** files and replace those with the corresponding location.
 
-And here is where the **grunt-css-url** task will do the magic. The folowing sample uses also the [grunt-css][grunt_css]
-task to minify the css with the precedence defined in the **site.css** file:
+And here is where the **grunt-css-url** task will do the magic. The following sample uses also the [grunt-cssjoin][grunt_cssjoin]
+task to join the css files into a **site.all.css** file:
 
 ```javascript
 var path = require('path');
 
 module.exports = function(grunt) {
     grunt.initConfig({
-        cssUrls: {
-            src:  "public/site.css"
-        },
-        cssmin: {
-            all: {
-                dest: 'public/site.min.css',
-                src: function () {
-                    var content = grunt.file.read('public/site.css').toString();
-                    var files = [];
-
-                    content.replace(/@import\s+'([^']+)/gim, function(match, location, a) {
-                        files.push(path.resolve('public/' + location));
-                    });
-
-                    return files;
-                }()
+        cssurls: {
+            src:  {
+                'public/site.urls.css' : 'public/site.css'
             }
-        }
+        },
+        cssjoin: {
+            join: {
+                files: {
+                    'public/site.all.css' : 'public/site.urls.css'
+                }
+            }
+        }, 
     });
 
-    grunt.loadNpmTasks('grunt-css');
+    grunt.loadNpmTasks('grunt-cssjoin');
     grunt.loadNpmTasks('grunt-css-urls');
 
-    grunt.registerTask('release', [ 'cssUrls', 'cssmin' ]);
+    grunt.registerTask('release', [ 'cssurls', 'cssjoin' ]);
 };
 ```
-Based on the scenario described above, the url references will end up like this:
+Based on the scenario described above, the url references in public.join.css will end up like this:
 
 ```css
 h1.logo { url('./img/logo.png') }
@@ -145,7 +139,6 @@ h1.logo { url('./img/logo.png') }
 
 [grunt]: https://github.com/cowboy/grunt
 [getting_started]: https://github.com/cowboy/grunt/blob/master/docs/getting_started.md
-[grunt_css]: https://github.com/jzaefferer/grunt-css
 
 License
 -------
