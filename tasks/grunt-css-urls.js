@@ -72,7 +72,7 @@ module.exports = function (grunt) {
 						var new_path = path.resolve(importDir, Math.floor(Math.random()*100000000) + path.extname('qsd.css'));
 						
 						grunt.file.write(new_path, css);
-						grunt.log.warn(path.dirname(path.resolve(sourcefile.dest)) + " - " + new_path);
+						
 						return util.format("@import \"%s\"; /* %s */", path.relative(path.dirname(path.resolve(sourcefile.dest)), new_path), location);
 					}
 				)
